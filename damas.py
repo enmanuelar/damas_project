@@ -1,4 +1,4 @@
-import pygame, sys, time, clases
+import pygame, sys, time, board, checker
 from pygame.locals import *
 
 ##Initialize 
@@ -33,10 +33,10 @@ for unused in range(0, 3):
 
 
 ##Objects
-board = clases.Board(0, 0, board_sprite, blue_checkers, board_array)
+board = board.Board(0, 0, board_sprite, blue_checkers, board_array)
 
-top_player = clases.Checker(red_checkers)
-bottom_player = clases.Checker(blue_checkers)
+top_player = checker.Checker(red_checkers)
+bottom_player = checker.Checker(blue_checkers)
 
 
 ## Inicializar tablero para el jugador del top
