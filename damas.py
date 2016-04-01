@@ -9,6 +9,7 @@ window_surface = pygame.display.set_mode((window_size),0,32)
 pygame.display.set_caption("Damas")
 top_checkers_array = []
 bottom_checkers_array = []
+current_row = 0
 
 ##Sprites
 board_sprite = pygame.image.load("images/checkers_board_8x8.gif")
@@ -38,19 +39,17 @@ board = board.Board(0, 0, board_sprite, blue_checkers, board_array)
 top_player = checker.Checker(red_checkers)
 bottom_player = checker.Checker(blue_checkers)
 
-
 ## Inicializar tablero para el jugador del top
-for y in range(0, 3):
-	for x in range(0, 8):
-		current_pos = board.initialize(0, 2, "top")
-		top_checkers_array.append(current_pos)
-
+board.initialize(0, 2)
 ## Inicializar tablero para el jugador del bottom
-for y in range(0, 3):
-	for x in range(0, 8):
-		current_pos = board.initialize(5, 3, "bottom")
-		bottom_checkers_array.append(current_pos)
+board.initialize(5, 3)
+## Calcular coordenadas de cada espacio del tablero
+coordinates_array = board.get_coordinates()
 
+
+#board_array[3][0] = 2
+print board_array
+print coordinates_array
 
 ##Update loop
 while  True:
@@ -65,20 +64,21 @@ while  True:
 	#============GAME LOGIC=============
 	#print board_array
 	#print top_checkers_array
+	#print pygame.mouse.get_pos()
 
 	#============DRAW=============
 	board.draw(window_surface)
-	for checker_pos in top_checkers_array:
-		try:
-			top_player.draw(window_surface, (checker_pos[0], checker_pos[1]))
-		except TypeError:
-			pass
-	for checker_pos in bottom_checkers_array:
-		try:
-			bottom_player.draw(window_surface, (checker_pos[0], checker_pos[1]))
-		except TypeError:
-			pass
-
+	current_row = 0
+	for row in board_array:
+		current_space = 0
+		for space in row:
+			if space == 2 or space == 4:
+				top_player.draw(window_surface, (coordinates_array[current_row][current_space]))
+			else:
+				if space == 3 or space == 5:
+					bottom_player.draw(window_surface, (coordinates_array[current_row][current_space]))
+			current_space += 1
+		current_row += 1 
 
 	pygame.display.update()
 	main_clock.tick(30)

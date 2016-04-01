@@ -15,26 +15,31 @@ class Board():
 
 	def draw(self, surface):
 		surface.blit(self.board_sprite,(self.x, self.y))
+		
 
-	def initialize(self, initial_row, player_num, player_pos):
-		pos_x = ((self.board_width / 8) / 2) - (self.checker_width / 2)
-
-		if player_pos == "top":
-			pos_y = ((self.board_height / 8) / 2) - (self.checker_height / 2)
-		else:
-			pos_y = ((self.board_height / 2) + (self.board_height / 8)) + (self.checker_height / 8)
-
+	def initialize(self, initial_row, player_num):
 		for y in range(initial_row, len(self.board_array)):
 			i = 0
 			for x in self.board_array[y]:
 				if x == 1 and y < (initial_row + 3):
 					self.board_array[y][i] = player_num
-					return [pos_x, pos_y]
-				else:
-					pos_x += (self.board_width / 8)
-					i += 1
-			pos_x = ((self.board_width / 8) / 2) - (self.checker_width / 2)
-			pos_y += (self.board_height / 8)			
+				i += 1
+
+	def get_coordinates(self):
+		coord_x, coord_y = 0, 0
+		coordinates = []
+		row_coord = []
+		for y in range(8):
+			coord_y += self.board_height / 8
+			for x in range(8):
+				coord_x += self.board_width / 8
+				row_coord.append([coord_x, coord_y])
+			coordinates.append(row_coord)
+			row_coord = []
+			coord_x = 0
+
+		return coordinates
+
 
 
 	def get_board_width(self):
@@ -42,3 +47,4 @@ class Board():
 
 	def get_board_height(self):
 		return  self.board_height
+

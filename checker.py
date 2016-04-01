@@ -4,4 +4,7 @@ class Checker():
 	
 
 	def draw(self, surface, position):
-		surface.blit(self.checker_sprite, (position[0], position[1]))
+		pos_x = (position[0] - 63 / 2) - 25
+		#pos_x += (pos_x / 2) - 25
+		pos_y = (position[1] - 63 / 2) - 25 
+		surface.blit(self.checker_sprite, (pos_x, pos_y))
