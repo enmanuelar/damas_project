@@ -40,11 +40,45 @@ class Board():
 
 		return coordinates
 
-
-
 	def get_board_width(self):
 		return self.board_width
 
 	def get_board_height(self):
 		return  self.board_height
+
+	def get_checker_index(self, coordinates_array, mouse_pos):
+		for row in coordinates_array:
+			for space in row:
+				if mouse_pos[0] < space[0] and mouse_pos[1] < space[1]:
+					row_index = coordinates_array.index(row)
+					space_index = row.index(space)
+					return row_index, space_index
+
+	def get_space_value(self, row_index, space_index):
+		return self.board_array[row_index][space_index]
+
+	def check_next_row(self, coordinates_array, current_checker, row_index, space_index):
+		if current_checker == 3:
+			try:
+				if space_index == 0:
+					return [[coordinates_array[row_index - 1][space_index + 1]]]
+				else:
+					next_pos = [[coordinates_array[row_index - 1][space_index - 1]], [coordinates_array[row_index - 1][space_index + 1]]]
+ 					return next_pos
+ 			except IndexError:
+ 				next_pos = [[coordinates_array[row_index - 1][space_index - 1]]]
+ 				return next_pos
+
+	def move_checker(self, coordinates_array, mouse_pos, current_checker, first_row_index, first_space_index):
+		row_index, space_index = self.get_checker_index(coordinates_array, mouse_pos)
+		#current_checker = self.get_space_value(row_index, space_index)
+		if current_checker == 1:
+			if( 
+				(mouse_pos[0] < coordinates_array[row_index - 1][space_index - 1] or
+				mouse_pos[0] < coordinates_array[row_index - 1][space_index + 1])			
+				):
+				self.board_array[first_row_index][first_space_index] = 1
+				self.board_array[row_index][space_index] = 3
+
+
 
