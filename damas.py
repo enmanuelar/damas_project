@@ -73,14 +73,13 @@ while  True:
 			space_value = board.get_space_value(first_row_index, first_space_index)
 			if space_value != 0 and space_value != 1:
 				check_selected = True
-				print check_selected
-				next_pos = board.check_next_row(coordinates_array, space_value, first_row_index, first_space_index)
+				next_pos = board.get_next_row_coordinates(coordinates_array, space_value, first_row_index, first_space_index)
+				#board.check_next_row()
 
 		if event.type == MOUSEBUTTONUP:
 			second_row_index, second_space_index = board.get_checker_index(coordinates_array, pygame.mouse.get_pos())
-			space_value = board.get_space_value(second_row_index, second_space_index)
-			board.move_checker(coordinates_array, pygame.mouse.get_pos(), space_value, first_row_index, first_space_index)
-
+			release_space_value = board.get_space_value(second_row_index, second_space_index)
+			board.move_checker(coordinates_array, pygame.mouse.get_pos(), release_space_value, space_value, first_row_index, first_space_index)
 			check_selected = False
 
 
@@ -102,9 +101,14 @@ while  True:
 					bottom_player.draw(window_surface, (coordinates_array[current_row][current_space]))
 			current_space += 1
 		current_row += 1 
+
 	if check_selected:
-		for row in next_pos:
-			for pos in row:
-				bottom_player.draw_on_next_row(window_surface, (pos[0], pos[1]))
+		for space in next_pos:
+			for pos in space:
+				if board.get_space_value(first_row_index, first_space_index) == 3: ##Para tomar en cuenta el turno
+					bottom_player.draw_on_next_row(window_surface, (pos[0], pos[1]))
+				else:
+					top_player.draw_on_next_row(window_surface,(pos[0],pos[1]))
+
 	pygame.display.update()
 	main_clock.tick(30)

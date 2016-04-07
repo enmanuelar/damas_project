@@ -37,7 +37,6 @@ class Board():
 			coordinates.append(row_coord)
 			row_coord = []
 			coord_x = 0
-
 		return coordinates
 
 	def get_board_width(self):
@@ -57,7 +56,7 @@ class Board():
 	def get_space_value(self, row_index, space_index):
 		return self.board_array[row_index][space_index]
 
-	def check_next_row(self, coordinates_array, current_checker, row_index, space_index):
+	def get_next_row_coordinates(self, coordinates_array, current_checker, row_index, space_index):
 		if current_checker == 3:
 			try:
 				if space_index == 0:
@@ -68,17 +67,41 @@ class Board():
  			except IndexError:
  				next_pos = [[coordinates_array[row_index - 1][space_index - 1]]]
  				return next_pos
+ 		else:
+ 			if current_checker == 2:
+ 				try:
+					if space_index == 0:
+						return [[coordinates_array[row_index + 1][space_index + 1]]]
+					else:
+						next_pos = [[coordinates_array[row_index + 1][space_index - 1]], [coordinates_array[row_index + 1][space_index + 1]]]
+	 					return next_pos
+	 			except IndexError:
+	 				next_pos = [[coordinates_array[row_index + 1][space_index - 1]]]
+	 				return next_pos
 
-	def move_checker(self, coordinates_array, mouse_pos, current_checker, first_row_index, first_space_index):
+	#devuelve true si los dos espacios siguientes son 1
+	def check_next_row(self):
+		pass
+
+
+	def move_checker(self, coordinates_array, mouse_pos, release_space_value, current_checker, first_row_index, first_space_index):
 		row_index, space_index = self.get_checker_index(coordinates_array, mouse_pos)
 		#current_checker = self.get_space_value(row_index, space_index)
-		if current_checker == 1:
+		if release_space_value == 1:
 			if( 
-				(mouse_pos[0] < coordinates_array[row_index - 1][space_index - 1] or
-				mouse_pos[0] < coordinates_array[row_index - 1][space_index + 1])			
+
+				current_checker == 3			
 				):
 				self.board_array[first_row_index][first_space_index] = 1
 				self.board_array[row_index][space_index] = 3
+			else:
+				if( 
+					(mouse_pos[0] < coordinates_array[first_row_index + 1][first_space_index - 1] or
+					mouse_pos[0] < coordinates_array[first_row_index + 1][first_space_index + 1]) and
+					current_checker == 2			
+					):
+					self.board_array[first_row_index][first_space_index] = 1
+					self.board_array[row_index][space_index] = 2
 
 
 
