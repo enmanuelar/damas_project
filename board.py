@@ -56,6 +56,9 @@ class Board():
 	def get_space_value(self, row_index, space_index):
 		return self.board_array[row_index][space_index]
 
+	def get_space_coordinates(self, coordinates_array, row_index, space_index):
+		return coordinates_array[row_index][space_index]
+
 	def get_next_row_coordinates(self, coordinates_array, current_checker, row_index, space_index):
 		if current_checker == 3:
 			try:
@@ -84,7 +87,7 @@ class Board():
 		pass
 
 
-	def move_checker(self, coordinates_array, mouse_pos, release_space_value, current_checker, first_row_index, first_space_index):
+	def move_checker(self, coordinates_array, mouse_pos, release_space_value, current_checker, checker_list_index, first_row_index, first_space_index):
 		row_index, space_index = self.get_checker_index(coordinates_array, mouse_pos)
 		#current_checker = self.get_space_value(row_index, space_index)
 		if release_space_value == 1:

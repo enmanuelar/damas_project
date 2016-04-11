@@ -7,11 +7,13 @@ pygame.init()
 window_size = [504, 504]
 window_surface = pygame.display.set_mode((window_size),0,32)
 pygame.display.set_caption("Damas")
-top_checkers_array = []
-bottom_checkers_array = []
 current_row = 0
 check_selected = False
 next_pos = []
+sprites_dict = {}
+top_player_array = []
+bottom_player_array = []
+
 
 ##Sprites
 board_sprite = pygame.image.load("images/checkers_board_8x8.gif")
@@ -19,12 +21,20 @@ red_checkers = pygame.image.load("images/ficha_roja_50x50.png")
 blue_checkers = pygame.image.load("images/ficha_azul_50x50.png")
 red_checkers_alpha = pygame.image.load("images/ficha_roja_50x50.png")
 blue_checkers_alpha = pygame.image.load("images/ficha_azul_50x50.png")
+
 red_checkers.set_colorkey((255,255,255),RLEACCEL)
-red_checkers_alpha.set_alpha(80)
 red_checkers_alpha.set_colorkey((255,255,255),RLEACCEL)
 blue_checkers.set_colorkey((255,255,255),RLEACCEL)
-blue_checkers_alpha.set_alpha(80)
 blue_checkers_alpha.set_colorkey((255,255,255),RLEACCEL)
+red_checkers_alpha.set_alpha(80)
+blue_checkers_alpha.set_alpha(80)
+
+red_checkers_rect = red_checkers.get_rect()
+blue_checkers_rect = blue_checkers.get_rect()
+sprites_dict = {
+	"top_player": {"sprite": red_checkers, "alpha_sprite": red_checkers_alpha},
+	"bottom_player": {"sprite": blue_checkers, "alpha_sprite": blue_checkers_alpha}
+}
 ##How fast the screen updates
 main_clock = pygame.time.Clock()
 
@@ -43,8 +53,8 @@ for unused in range(0, 3):
 ##Objects
 board = board.Board(0, 0, board_sprite, blue_checkers, board_array)
 
-top_player = checker.Checker(red_checkers, red_checkers_alpha)
-bottom_player = checker.Checker(blue_checkers, blue_checkers_alpha)
+#top_player = checker.Checker(sprites_dict, "top_player")
+bottom_player = checker.Checker(sprites_dict, "bottom_player")
 
 ## Inicializar tablero para el jugador del top
 board.initialize(0, 2)
@@ -53,8 +63,17 @@ board.initialize(5, 3)
 ## Calcular coordenadas de cada espacio del tablero
 coordinates_array = board.get_coordinates()
 
+for row in board_array:
+	for space in row:
+		if space == 2:
+			top_player = checker.Checker(sprites_dict, "top_player")
+			top_player_array.append(top_player)
+		else:
+			if space == 3:
+				bottom_player = checker.Checker(sprites_dict, "bottom_player")
+				bottom_player_array.append(bottom_player)
 
-#board_array[3][0] = 2
+#board_array[2][1] = 3
 print board_array
 print coordinates_array
 
@@ -68,19 +87,30 @@ while  True:
 			pygame.quit()
 			sys.exit()
 
+		if event.type == MOUSEMOTION:
+			pos = event.pos
+			for player in top_player_array:
+				if player.sprite_rect.collidepoint(pos):
+					checker_index = top_player_array.index(player)
+
 		if event.type == MOUSEBUTTONDOWN:		
 			first_row_index, first_space_index = board.get_checker_index(coordinates_array, pygame.mouse.get_pos())
 			space_value = board.get_space_value(first_row_index, first_space_index)
 			if space_value != 0 and space_value != 1:
 				check_selected = True
 				next_pos = board.get_next_row_coordinates(coordinates_array, space_value, first_row_index, first_space_index)
+				print next_pos
 				#board.check_next_row()
 
 		if event.type == MOUSEBUTTONUP:
 			second_row_index, second_space_index = board.get_checker_index(coordinates_array, pygame.mouse.get_pos())
 			release_space_value = board.get_space_value(second_row_index, second_space_index)
-			board.move_checker(coordinates_array, pygame.mouse.get_pos(), release_space_value, space_value, first_row_index, first_space_index)
+			release_pos = board.get_space_coordinates(coordinates_array, second_row_index, second_space_index)
+			print release_pos
+			if [release_pos] in next_pos:
+				board.move_checker(coordinates_array, pygame.mouse.get_pos(), release_space_value, space_value, checker_index, first_row_index, first_space_index)
 			check_selected = False
+			print len(top_player_array)
 
 
 	#============GAME LOGIC=============
@@ -90,17 +120,21 @@ while  True:
 
 	#============DRAW=============
 	board.draw(window_surface)
-	current_row = 0
-	for row in board_array:
-		current_space = 0
-		for space in row:
-			if space == 2 or space == 4:
-				top_player.draw(window_surface, (coordinates_array[current_row][current_space]))
-			else:
+	if len(top_player_array) > 0:
+		current_row = 0
+		top_checker_index = 0
+		bot_checker_index = 0
+		for row in board_array:
+			current_space = 0
+			for space in row:
+				if space == 2 or space == 4:
+						top_player_array[top_checker_index].draw(window_surface,(coordinates_array[current_row][current_space]))
+						top_checker_index+= 1
 				if space == 3 or space == 5:
-					bottom_player.draw(window_surface, (coordinates_array[current_row][current_space]))
-			current_space += 1
-		current_row += 1 
+					bottom_player_array[bot_checker_index].draw(window_surface,(coordinates_array[current_row][current_space]))
+					bot_checker_index+= 1
+				current_space += 1
+			current_row += 1 
 
 	if check_selected:
 		for space in next_pos:
