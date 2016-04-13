@@ -1,15 +1,12 @@
 import pygame 
 
 class Board():
-	def __init__(self, x, y, board_sprite, checker_sprite, board_array):
+	def __init__(self, x, y, board_sprite, board_array):
 		self.x = x
 		self.y = y
 		self.board_sprite = board_sprite
-		self.checker_sprite = checker_sprite
 		self.board_width = self.board_sprite.get_width()
 		self.board_height = self.board_sprite.get_height()
-		self.checker_width = self.checker_sprite.get_width()
-		self.checker_height = self.checker_sprite.get_height()
 		self.board_array = board_array
 
 
@@ -82,7 +79,7 @@ class Board():
 	 				next_pos = [[coordinates_array[row_index + 1][space_index - 1]]]
 	 				return next_pos
 
-	#devuelve true si los dos espacios siguientes son 1
+	#devuelve true si los dos espacios siguientes son 1 o false si encuentra una ficha
 	def check_next_row(self):
 		pass
 
@@ -106,5 +103,17 @@ class Board():
 					self.board_array[first_row_index][first_space_index] = 1
 					self.board_array[row_index][space_index] = 2
 
+	def init_turn(self, first_player):
+		turn = {"top": [2, 4], "bottom": [3, 5]}
+		return turn[first_player]
+
+	def change_turn(self, current_turn):
+		turn = {"top": [2, 4], "bottom": [3, 5]}
+		if current_turn == turn["bottom"]:
+			current_turn = turn["top"]
+		else:
+			if current_turn == turn["top"]:
+				current_turn = turn["bottom"]
+		return current_turn
 
 

@@ -1,5 +1,3 @@
-
-
 class Checker():
 	def __init__(self, sprite_dict, player):
 		self.checker_sprite = sprite_dict[player]["sprite"]
@@ -15,4 +13,8 @@ class Checker():
 		pos_x = (position[0] - 63 / 2) - 25
 		pos_y = (position[1] - 63 / 2) - 25 
 		surface.blit(self.checker_sprite_alpha, (pos_x, pos_y))		
+
+
+	def draw_current_turn(self, surface):
+		surface.blit(self.checker_sprite, (584, 250))
 
