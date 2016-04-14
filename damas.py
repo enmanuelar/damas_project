@@ -49,6 +49,7 @@ BGCOLOR = (0, 0, 0)
 # 2 = ficha top, 3 = ficha bottom, 4= dama top, 5= dama bottom
 board_array = [[0,1,0,1,0,1,0,1],
 				[1,0,1,0,1,0,1,0]]
+				
 for unused in range(0, 3):
 	board_array.append([0,1,0,1,0,1,0,1])
 	board_array.append([1,0,1,0,1,0,1,0])
@@ -98,6 +99,7 @@ while  True:
 			for checker in bottom_player_array:
 				if checker.sprite_rect.collidepoint(pos):
 					checker_index = bottom_player_array.index(checker)
+					#print checker_index
 
 		if event.type == MOUSEBUTTONDOWN:		
 			first_row_index, first_space_index = board.get_checker_index(coordinates_array, pygame.mouse.get_pos())
@@ -105,8 +107,10 @@ while  True:
 			next_pos = [(0,0)]
 			if space_value != 0 and space_value != 1 and space_value in current_turn:
 				check_selected = True
-				next_pos = board.get_next_row_coordinates(coordinates_array, space_value, first_row_index, first_space_index)
-				print next_pos
+				next_coordinates = board.get_next_row_coordinates(coordinates_array, space_value, first_row_index, first_space_index)
+				print next_coordinates
+				next_pos = board.get_next_pos(coordinates_array, next_coordinates, space_value)
+				#print next_pos
 				#board.check_next_row()
 
 		if event.type == MOUSEBUTTONUP:
@@ -115,7 +119,7 @@ while  True:
 				release_space_value = board.get_space_value(second_row_index, second_space_index)
 				release_pos = board.get_space_coordinates(coordinates_array, second_row_index, second_space_index)
 				print release_pos
-				if [release_pos] in next_pos and release_space_value == 1:
+				if release_pos in next_pos and release_space_value == 1:
 					board.move_checker(coordinates_array, pygame.mouse.get_pos(), release_space_value, space_value, checker_index, first_row_index, first_space_index)
 					current_turn = board.change_turn(current_turn)
 				check_selected = False
@@ -150,12 +154,12 @@ while  True:
 			current_row += 1 
 
 	if check_selected:
-		for space in next_pos:
-			for pos in space:
-				if board.get_space_value(first_row_index, first_space_index) == 3: ##Para tomar en cuenta el turno
-					bottom_player.draw_on_next_row(window_surface, (pos[0], pos[1]))
-				else:
-					top_player.draw_on_next_row(window_surface,(pos[0],pos[1]))
+		#for space in next_pos:
+		for pos in next_pos:
+			if board.get_space_value(first_row_index, first_space_index) == 3: ##Para tomar en cuenta el turno
+				bottom_player.draw_on_next_row(window_surface, (pos[0], pos[1]))
+			else:
+				top_player.draw_on_next_row(window_surface,(pos[0],pos[1]))
 
 	if current_turn == [2, 4]:
 		top_player.draw_current_turn(window_surface)
