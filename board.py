@@ -56,46 +56,44 @@ class Board():
 	def get_space_coordinates(self, coordinates_array, row_index, space_index):
 		return coordinates_array[row_index][space_index]
 
-	def get_value_by_coordinates(self, coordinates_array, coordinates_to_check):
+	def get_coord_index(self, coordinates_array, coordinate_to_check):
 		current_row = 0
-		index_to_check = 0
-		space_values = []
-
+		index = []
 		for row in coordinates_array:
 			current_space = 0
 			for space in row:
-				if space in coordinates_to_check:
-					space_values.append(self.get_space_value(current_row, current_space))
-					index_to_check += 1
+				if space in coordinate_to_check:
+					index.append([current_row, current_space])
 				current_space += 1
 			current_row += 1
+		return index
+
+	def get_value_by_coordinates(self, coordinates_array, coordinates_to_check):
+		space_values = []		
+		row_space_index = self.get_coord_index(coordinates_array, coordinates_to_check)
+		space_values.append(self.get_space_value(row_space_index[0][0], row_space_index[0][1]))
 		return space_values
 
+
 	def get_next_pos(self, coordinates_array, coordinates_to_check, current_checker):
-		current_row = 0
 		index_to_check = 0
 		next_pos = []
-		for row in coordinates_array:
-			current_space = 0
-			for space in row:
-				if space in coordinates_to_check:
-					print "revisar " + str(space)
-					space_value = self.get_space_value(current_row, current_space) 
-					if space_value != 1 and space_value != current_checker:
-						try:
-							next_space_coord = self.get_next_row_coordinates(coordinates_array, current_checker, current_row, current_space)[index_to_check]
-							next_space_value = self.get_value_by_coordinates(coordinates_array, [next_space_coord])
-							if next_space_value == [1]:
-								next_pos.append(next_space_coord)
-						except IndexError:
-							pass
-					else:
-						next_pos.append(space)
-					index_to_check += 1
-				current_space += 1
-			current_row += 1
+		index = self.get_coord_index(coordinates_array, coordinates_to_check)
+		for space in coordinates_to_check:
+			space_value = self.get_space_value(index[index_to_check][0], index[index_to_check][1])
+			if space_value != 1 and space_value != current_checker:
+				try:
+					next_space_coord = self.get_next_row_coordinates(coordinates_array, current_checker, index[index_to_check][0], index[index_to_check][1])[index_to_check]
+					next_space_value = self.get_value_by_coordinates(coordinates_array, [next_space_coord])
+					if next_space_value == [1]:
+						next_pos.append(next_space_coord)
+				except IndexError:
+					pass
+			else:
+				if space_value == 1:
+					next_pos.append(space)
+			index_to_check += 1
 		return next_pos
-
 
 	def get_next_row_coordinates(self, coordinates_array, current_checker, row_index, space_index):	
 		if current_checker == 3:
@@ -120,29 +118,16 @@ class Board():
 	 				next_pos = [coordinates_array[row_index + 1][space_index - 1]]
 	 				return next_pos
 
-	#devuelve true si los dos espacios siguientes son 1 o false si encuentra una ficha
-	def check_next_row(self):
-		pass
-
-
-
 
 	def move_checker(self, coordinates_array, mouse_pos, release_space_value, current_checker, checker_list_index, first_row_index, first_space_index):
 		row_index, space_index = self.get_checker_index(coordinates_array, mouse_pos)
 		#current_checker = self.get_space_value(row_index, space_index)
 		if release_space_value == 1:
-			if( 
-
-				current_checker == 3			
-				):
+			if current_checker == 3:
 				self.board_array[first_row_index][first_space_index] = 1
 				self.board_array[row_index][space_index] = 3
 			else:
-				if( 
-					(mouse_pos[0] < coordinates_array[first_row_index + 1][first_space_index - 1] or
-					mouse_pos[0] < coordinates_array[first_row_index + 1][first_space_index + 1]) and
-					current_checker == 2			
-					):
+				if current_checker == 2:
 					self.board_array[first_row_index][first_space_index] = 1
 					self.board_array[row_index][space_index] = 2
 

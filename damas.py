@@ -110,8 +110,7 @@ while  True:
 				next_coordinates = board.get_next_row_coordinates(coordinates_array, space_value, first_row_index, first_space_index)
 				print next_coordinates
 				next_pos = board.get_next_pos(coordinates_array, next_coordinates, space_value)
-				#print next_pos
-				#board.check_next_row()
+
 
 		if event.type == MOUSEBUTTONUP:
 			if pygame.mouse.get_pos()[0] < board.get_board_width():
