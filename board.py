@@ -119,7 +119,7 @@ class Board():
 	 				return next_pos
 
 
-	def move_checker(self, coordinates_array, mouse_pos, release_space_value, current_checker, checker_list_index, first_row_index, first_space_index):
+	def move_checker(self, coordinates_array, mouse_pos, release_space_value, current_checker, first_row_index, first_space_index):
 		row_index, space_index = self.get_checker_index(coordinates_array, mouse_pos)
 		#current_checker = self.get_space_value(row_index, space_index)
 		if release_space_value == 1:
@@ -130,6 +130,11 @@ class Board():
 				if current_checker == 2:
 					self.board_array[first_row_index][first_space_index] = 1
 					self.board_array[row_index][space_index] = 2
+
+	##Devuelve el index de la ficha en el array del jugador
+	def get_index_on_player(self, player, coordinates_array, coordinates):
+		checker_index = self.get_coord_index(coordinates_array, coordinates)
+		print "index" + str(player.index[checker_index])
 
 	def init_turn(self, first_player):
 		turn = {"top": [2, 4], "bottom": [3, 5]}
@@ -144,4 +149,10 @@ class Board():
 				current_turn = turn["bottom"]
 		return current_turn
 
+	def change_player(self, current_turn, top_player_array, bottom_player_array):
+		if current_turn == [3, 5]:
+			return top_player_array
+		else:
+			if current_turn == [2, 4]:
+				return bottom_player_array
 

@@ -14,6 +14,7 @@ sprites_dict = {}
 top_player_array = []
 bottom_player_array = []
 
+
 ##Sprites
 board_sprite = pygame.image.load("images/checkers_board_8x8.gif")
 red_checkers = pygame.image.load("images/ficha_roja_50x50.png")
@@ -80,6 +81,25 @@ for row in board_array:
 				bottom_player = checker.Checker(sprites_dict, "bottom_player")
 				bottom_player_array.append(bottom_player)
 
+#bottom_player.init_pos(board_array, coordinates_array, top_player_array, bottom_player_array)
+current_row = 0
+top_checker_index = 0
+bot_checker_index = 0
+for row in board_array:
+		current_space = 0
+		for space in row:
+			if space == 2 or space == 4:
+					top_player_array[top_checker_index].init_pos(coordinates_array[current_row][current_space])
+					top_checker_index+= 1
+			if space == 3 or space == 5:
+				bottom_player_array[bot_checker_index].init_pos(coordinates_array[current_row][current_space])
+
+				bot_checker_index+= 1
+			current_space += 1
+		current_row += 1 
+
+current_player_array = bottom_player_array
+
 #board_array[2][1] = 3
 print board_array
 print coordinates_array
@@ -96,16 +116,31 @@ while  True:
 
 		if event.type == MOUSEMOTION:
 			pos = event.pos
-			for checker in bottom_player_array:
-				if checker.sprite_rect.collidepoint(pos):
-					checker_index = bottom_player_array.index(checker)
-					#print checker_index
+			#for checker in bottom_player_array:
+			#	if checker.sprite_rect.collidepoint(pos):
+			#		print checker.get_coordinates()
+				#	checker_index = bottom_player_array.index(checker)
+				#	print checker_index
+
 
 		if event.type == MOUSEBUTTONDOWN:		
 			first_row_index, first_space_index = board.get_checker_index(coordinates_array, pygame.mouse.get_pos())
 			space_value = board.get_space_value(first_row_index, first_space_index)
 			next_pos = [(0,0)]
-			if space_value != 0 and space_value != 1 and space_value in current_turn:
+			current_coordinate = board.get_space_coordinates(coordinates_array, first_row_index, first_space_index)
+
+			for checker in current_player_array:
+				if checker.get_coordinates() == current_coordinate:
+					current_index = current_player_array.index(checker)
+					#bottom_player_array.remove(checker)
+					#del current_player_array[current_index]
+					print "index " + str(current_index)
+
+
+
+
+			if current_player_array[current_index].sprite_rect.collidepoint(pos) and space_value in current_turn:
+			#if space_value != 0 and space_value != 1 and space_value in current_turn:
 				check_selected = True
 				next_coordinates = board.get_next_row_coordinates(coordinates_array, space_value, first_row_index, first_space_index)
 				print next_coordinates
@@ -119,10 +154,13 @@ while  True:
 				release_pos = board.get_space_coordinates(coordinates_array, second_row_index, second_space_index)
 				print release_pos
 				if release_pos in next_pos and release_space_value == 1:
-					board.move_checker(coordinates_array, pygame.mouse.get_pos(), release_space_value, space_value, checker_index, first_row_index, first_space_index)
+					current_player_array[current_index].new_pos(release_pos)
+					board.move_checker(coordinates_array, pygame.mouse.get_pos(), release_space_value, space_value, first_row_index, first_space_index)
+					current_player_array = board.change_player(current_turn, top_player_array, bottom_player_array)
 					current_turn = board.change_turn(current_turn)
 				check_selected = False
-				print len(top_player_array)
+
+				print len(bottom_player_array)
 			else:
 				check_selected = False
 
@@ -136,27 +174,54 @@ while  True:
 	window_surface.blit(background, (0,0))
 	board.draw(window_surface)
 	window_surface.blit(label, (540, 216))
-	if len(top_player_array) > 0:
-		current_row = 0
-		top_checker_index = 0
-		bot_checker_index = 0
-		for row in board_array:
-			current_space = 0
-			for space in row:
-				if space == 2 or space == 4:
-						top_player_array[top_checker_index].draw(window_surface,(coordinates_array[current_row][current_space]))
-						top_checker_index+= 1
-				if space == 3 or space == 5:
-					bottom_player_array[bot_checker_index].draw(window_surface,(coordinates_array[current_row][current_space]))
-					bot_checker_index+= 1
-				current_space += 1
-			current_row += 1 
+	# if len(top_player_array) > 0:
+	# 	current_row = 0
+	# 	top_checker_index = 0
+	# 	bot_checker_index = 0
+	# 	for row in board_array:
+	# 		current_space = 0
+	# 		for space in row:
+	# 			if space == 2 or space == 4:
+	# 					top_player_array[top_checker_index].draw(window_surface,(coordinates_array[current_row][current_space]))
+	# 					top_checker_index+= 1
+	# 			if space == 3 or space == 5:
+	# 				bottom_player_array[bot_checker_index].draw(window_surface,(coordinates_array[current_row][current_space]))
+	# 				bot_checker_index+= 1
+	# 			current_space += 1
+	# 		current_row += 1 
+
+	# if len(bottom_player_array) > 0:
+	# 	checker_index = 0
+	# 	for row in coordinates_array:
+	# 		for coordinate in row:
+	# 			#print coordinate
+	# 			if board.get_value_by_coordinates(coordinates_array, [coordinate]) == [3]:
+	# 				try:
+	# 					coord_index = board.get_coord_index(coordinates_array, [coordinate])
+	# 					coord_index_left = coord_index[0][0]
+	# 					coord_index_top = coord_index[0][1]				
+	# 					bottom_player_array[checker_index].draw(window_surface, (coordinates_array[coord_index_left][coord_index_top]))
+	# 					checker_index += 1
+	# 				except IndexError:
+	# 					pass
+	# else:
+	# 	label = myfont.render("Game Over", 1, (255, 255, 0))
+		
+	for checker in bottom_player_array:
+		checker.draw2(window_surface)
+
+	for checker in top_player_array:
+		checker.draw2(window_surface)
 
 	if check_selected:
 		#for space in next_pos:
+		current_player_array[current_index].draw_on_cursor(window_surface, pygame.mouse.get_pos())
+		#bottom_player.draw_on_cursor(window_surface, pygame.mouse.get_pos())
 		for pos in next_pos:
 			if board.get_space_value(first_row_index, first_space_index) == 3: ##Para tomar en cuenta el turno
 				bottom_player.draw_on_next_row(window_surface, (pos[0], pos[1]))
+				#bottom_player_array[bottom_index].draw(window_surface, pygame.mouse.get_pos())
+
 			else:
 				top_player.draw_on_next_row(window_surface,(pos[0],pos[1]))
 
@@ -164,6 +229,7 @@ while  True:
 		top_player.draw_current_turn(window_surface)
 	else:
 		bottom_player.draw_current_turn(window_surface)
+
 
 
 	pygame.display.update()
