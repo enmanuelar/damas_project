@@ -13,6 +13,8 @@ next_pos = []
 sprites_dict = {}
 top_player_array = []
 bottom_player_array = []
+trigger_wrong_label = False
+wrong_label_pos_x, wrong_label_pos_y = 152, 252
 
 
 ##Sprites
@@ -39,6 +41,8 @@ sprites_dict = {
 ##Font and Text
 myfont = pygame.font.Font(None, 36)
 label = myfont.render("Player Turn:", 1, (255, 255, 0))
+wrong_label = myfont.render("Not your turn yet!", 1, (255, 125, 50))
+
 
 ##How fast the screen updates
 main_clock = pygame.time.Clock()
@@ -89,18 +93,18 @@ for row in board_array:
 		current_space = 0
 		for space in row:
 			if space == 2 or space == 4:
-					top_player_array[top_checker_index].init_pos(coordinates_array[current_row][current_space])
+					top_player_array[top_checker_index].new_pos(coordinates_array[current_row][current_space])
 					top_checker_index+= 1
 			if space == 3 or space == 5:
-				bottom_player_array[bot_checker_index].init_pos(coordinates_array[current_row][current_space])
+				bottom_player_array[bot_checker_index].new_pos(coordinates_array[current_row][current_space])
 
 				bot_checker_index+= 1
 			current_space += 1
 		current_row += 1 
 
 current_player_array = bottom_player_array
+current_enemy_array = top_player_array
 
-#board_array[2][1] = 3
 print board_array
 print coordinates_array
 
@@ -114,7 +118,7 @@ while  True:
 			pygame.quit()
 			sys.exit()
 
-		if event.type == MOUSEBUTTONDOWN:		
+		if event.type == MOUSEBUTTONDOWN:
 			first_row_index, first_space_index = board.get_checker_index(coordinates_array, pygame.mouse.get_pos())
 			space_value = board.get_space_value(first_row_index, first_space_index)
 			next_pos = [(0,0)]
@@ -123,16 +127,29 @@ while  True:
 			for checker in current_player_array:
 				if checker.get_coordinates() == current_coordinate:
 					current_index = current_player_array.index(checker)
-			
 
-			if current_player_array[current_index].sprite_rect.collidepoint(event.pos) and space_value in current_turn:
-				check_selected = True
-				next_coordinates = board.get_next_row_coordinates(coordinates_array, space_value, first_row_index, first_space_index)
-				print next_coordinates
-				positions = board.get_next_pos(coordinates_array, next_coordinates, space_value)
-				next_pos = positions["next_pos"]
-				enemy_pos = positions["enemy_pos"]
-				
+			for checker in current_enemy_array:
+				if checker.sprite_rect.collidepoint(event.pos):
+					wrong_label_pos_x, wrong_label_pos_y = pygame.mouse.get_pos()[0] - 100, pygame.mouse.get_pos()[1]
+					wrong_label = myfont.render("Not your turn yet!", 1, (255, 125, 50))
+					label_time = 20
+					trigger_wrong_label = True
+
+
+			try:		
+				if current_player_array[current_index].sprite_rect.collidepoint(event.pos) and space_value in current_turn:
+					check_selected = True
+					next_coordinates = board.get_next_row_coordinates(coordinates_array, space_value, first_row_index, first_space_index)
+					print next_coordinates
+					positions = board.get_next_pos(coordinates_array, next_coordinates, space_value)
+					next_pos = positions["next_pos"]
+					enemy_pos = positions["enemy_pos"]
+			except NameError:
+				wrong_label_pos_x, wrong_label_pos_y = pygame.mouse.get_pos()[0] - 100, pygame.mouse.get_pos()[1]
+				wrong_label = myfont.render("Pick a blue checker", 1, (255, 125, 50))
+				label_time = 20
+				trigger_wrong_label = True
+
 
 		if event.type == MOUSEBUTTONUP:
 			if pygame.mouse.get_pos()[0] < board.get_board_width():
@@ -142,7 +159,7 @@ while  True:
 				print release_pos
 
 				if release_pos in next_pos and release_space_value == 1:
-					current_player_array[current_index].init_pos(release_pos)
+					current_player_array[current_index].new_pos(release_pos)
 					board.move_checker(coordinates_array, pygame.mouse.get_pos(), release_space_value, space_value, first_row_index, first_space_index)
 					
 					## Revisar si hay fichas que se puedan comer
@@ -170,12 +187,14 @@ while  True:
 	board.draw(window_surface)
 	window_surface.blit(label, (540, 216))
 
-		
-	for checker in bottom_player_array:
-		checker.draw(window_surface)
+	if len(bottom_player_array) > 0 or len(top_player_array) > 0:
+		for checker in bottom_player_array:
+			checker.draw(window_surface)
 
-	for checker in top_player_array:
-		checker.draw(window_surface)
+		for checker in top_player_array:
+			checker.draw(window_surface)
+	else:
+		label = myfont.render("Game Over!", 1, (255, 255, 0))
 
 	if check_selected:
 		current_player_array[current_index].draw_on_cursor(window_surface, pygame.mouse.get_pos())
@@ -191,7 +210,12 @@ while  True:
 	else:
 		bottom_player.draw_current_turn(window_surface)
 
-
+	if trigger_wrong_label:
+		label_time -= 1
+		window_surface.blit(wrong_label, (wrong_label_pos_x, wrong_label_pos_y))
+		wrong_label_pos_y -= 1
+		if label_time == 0:
+			trigger_wrong_label = False
 
 	pygame.display.update()
 	main_clock.tick(30)

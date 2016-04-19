@@ -135,7 +135,6 @@ class Board():
 
 	def move_checker(self, coordinates_array, mouse_pos, release_space_value, current_checker, first_row_index, first_space_index):
 		row_index, space_index = self.get_checker_index(coordinates_array, mouse_pos)
-		#current_checker = self.get_space_value(row_index, space_index)
 		if release_space_value == 1:
 			if current_checker == 3:
 				self.board_array[first_row_index][first_space_index] = 1

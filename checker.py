@@ -4,7 +4,7 @@ class Checker():
 		self.sprite_rect = self.checker_sprite.get_rect()
 		self.checker_sprite_alpha = sprite_dict[player]["alpha_sprite"]
 
-	def init_pos(self, position):
+	def new_pos(self, position):
 		self.sprite_rect.left = (position[0] - 63 / 2) - 25
 		self.sprite_rect.top = (position[1] - 63 / 2) - 25
  	
