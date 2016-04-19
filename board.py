@@ -77,23 +77,37 @@ class Board():
 
 	def get_next_pos(self, coordinates_array, coordinates_to_check, current_checker):
 		index_to_check = 0
+		next_pos_dict = {}
 		next_pos = []
+		enemy_pos = []
+		found_enemy = False
 		index = self.get_coord_index(coordinates_array, coordinates_to_check)
 		for space in coordinates_to_check:
 			space_value = self.get_space_value(index[index_to_check][0], index[index_to_check][1])
 			if space_value != 1 and space_value != current_checker:
+				enemy_pos.append(space)
 				try:
 					next_space_coord = self.get_next_row_coordinates(coordinates_array, current_checker, index[index_to_check][0], index[index_to_check][1])[index_to_check]
 					next_space_value = self.get_value_by_coordinates(coordinates_array, [next_space_coord])
-					if next_space_value == [1]:
+					if next_space_value == [1] and len(next_pos) == 0:
 						next_pos.append(next_space_coord)
+						found_enemy = True
+					else:
+						if next_space_value == [1] and len(next_pos) == 1:
+							if next_pos[0][1] != next_space_coord[1]:
+								next_pos = []
+								next_pos.append(next_space_coord)
+							else:
+								next_pos.append(next_space_coord)
 				except IndexError:
 					pass
 			else:
-				if space_value == 1:
+				if space_value == 1 and found_enemy == False:
 					next_pos.append(space)
 			index_to_check += 1
-		return next_pos
+		next_pos_dict["next_pos"] = next_pos
+		next_pos_dict["enemy_pos"] = enemy_pos
+		return next_pos_dict
 
 	def get_next_row_coordinates(self, coordinates_array, current_checker, row_index, space_index):	
 		if current_checker == 3:
@@ -131,10 +145,6 @@ class Board():
 					self.board_array[first_row_index][first_space_index] = 1
 					self.board_array[row_index][space_index] = 2
 
-	##Devuelve el index de la ficha en el array del jugador
-	def get_index_on_player(self, player, coordinates_array, coordinates):
-		checker_index = self.get_coord_index(coordinates_array, coordinates)
-		print "index" + str(player.index[checker_index])
 
 	def init_turn(self, first_player):
 		turn = {"top": [2, 4], "bottom": [3, 5]}
@@ -149,10 +159,12 @@ class Board():
 				current_turn = turn["bottom"]
 		return current_turn
 
+
 	def change_player(self, current_turn, top_player_array, bottom_player_array):
 		if current_turn == [3, 5]:
-			return top_player_array
+			return top_player_array, bottom_player_array
 		else:
 			if current_turn == [2, 4]:
-				return bottom_player_array
+				return bottom_player_array, top_player_array
+
 

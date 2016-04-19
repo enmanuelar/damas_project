@@ -81,7 +81,7 @@ for row in board_array:
 				bottom_player = checker.Checker(sprites_dict, "bottom_player")
 				bottom_player_array.append(bottom_player)
 
-#bottom_player.init_pos(board_array, coordinates_array, top_player_array, bottom_player_array)
+## Inicializar posicion de los rects de las fichas
 current_row = 0
 top_checker_index = 0
 bot_checker_index = 0
@@ -114,15 +114,6 @@ while  True:
 			pygame.quit()
 			sys.exit()
 
-		if event.type == MOUSEMOTION:
-			pos = event.pos
-			#for checker in bottom_player_array:
-			#	if checker.sprite_rect.collidepoint(pos):
-			#		print checker.get_coordinates()
-				#	checker_index = bottom_player_array.index(checker)
-				#	print checker_index
-
-
 		if event.type == MOUSEBUTTONDOWN:		
 			first_row_index, first_space_index = board.get_checker_index(coordinates_array, pygame.mouse.get_pos())
 			space_value = board.get_space_value(first_row_index, first_space_index)
@@ -132,20 +123,16 @@ while  True:
 			for checker in current_player_array:
 				if checker.get_coordinates() == current_coordinate:
 					current_index = current_player_array.index(checker)
-					#bottom_player_array.remove(checker)
-					#del current_player_array[current_index]
-					print "index " + str(current_index)
+			
 
-
-
-
-			if current_player_array[current_index].sprite_rect.collidepoint(pos) and space_value in current_turn:
-			#if space_value != 0 and space_value != 1 and space_value in current_turn:
+			if current_player_array[current_index].sprite_rect.collidepoint(event.pos) and space_value in current_turn:
 				check_selected = True
 				next_coordinates = board.get_next_row_coordinates(coordinates_array, space_value, first_row_index, first_space_index)
 				print next_coordinates
-				next_pos = board.get_next_pos(coordinates_array, next_coordinates, space_value)
-
+				positions = board.get_next_pos(coordinates_array, next_coordinates, space_value)
+				next_pos = positions["next_pos"]
+				enemy_pos = positions["enemy_pos"]
+				
 
 		if event.type == MOUSEBUTTONUP:
 			if pygame.mouse.get_pos()[0] < board.get_board_width():
@@ -153,77 +140,51 @@ while  True:
 				release_space_value = board.get_space_value(second_row_index, second_space_index)
 				release_pos = board.get_space_coordinates(coordinates_array, second_row_index, second_space_index)
 				print release_pos
-				if release_pos in next_pos and release_space_value == 1:
-					current_player_array[current_index].new_pos(release_pos)
-					board.move_checker(coordinates_array, pygame.mouse.get_pos(), release_space_value, space_value, first_row_index, first_space_index)
-					current_player_array = board.change_player(current_turn, top_player_array, bottom_player_array)
-					current_turn = board.change_turn(current_turn)
-				check_selected = False
 
-				print len(bottom_player_array)
+				if release_pos in next_pos and release_space_value == 1:
+					current_player_array[current_index].init_pos(release_pos)
+					board.move_checker(coordinates_array, pygame.mouse.get_pos(), release_space_value, space_value, first_row_index, first_space_index)
+					
+					## Revisar si hay fichas que se puedan comer
+					if release_pos not in next_coordinates:
+						for checker in current_enemy_array:
+							for pos in enemy_pos:
+								if checker.get_coordinates() == pos:
+									current_enemy_array.remove(checker)
+									enemy_coord_index = board.get_coord_index(coordinates_array, [pos])
+									board_array[enemy_coord_index[0][0]][enemy_coord_index[0][1]] = 1
+									current_player_array, current_enemy_array = board.change_player(current_turn, top_player_array, bottom_player_array)
+									current_turn = board.change_turn(current_turn)
+									break
+
+					else:
+						current_player_array, current_enemy_array = board.change_player(current_turn, top_player_array, bottom_player_array)
+						current_turn = board.change_turn(current_turn)
+				check_selected = False
 			else:
 				check_selected = False
 
-
-	#============GAME LOGIC=============
-	#print board_array
-	#print top_checkers_array
-	#print pygame.mouse.get_pos()
 
 	#============DRAW=============
 	window_surface.blit(background, (0,0))
 	board.draw(window_surface)
 	window_surface.blit(label, (540, 216))
-	# if len(top_player_array) > 0:
-	# 	current_row = 0
-	# 	top_checker_index = 0
-	# 	bot_checker_index = 0
-	# 	for row in board_array:
-	# 		current_space = 0
-	# 		for space in row:
-	# 			if space == 2 or space == 4:
-	# 					top_player_array[top_checker_index].draw(window_surface,(coordinates_array[current_row][current_space]))
-	# 					top_checker_index+= 1
-	# 			if space == 3 or space == 5:
-	# 				bottom_player_array[bot_checker_index].draw(window_surface,(coordinates_array[current_row][current_space]))
-	# 				bot_checker_index+= 1
-	# 			current_space += 1
-	# 		current_row += 1 
 
-	# if len(bottom_player_array) > 0:
-	# 	checker_index = 0
-	# 	for row in coordinates_array:
-	# 		for coordinate in row:
-	# 			#print coordinate
-	# 			if board.get_value_by_coordinates(coordinates_array, [coordinate]) == [3]:
-	# 				try:
-	# 					coord_index = board.get_coord_index(coordinates_array, [coordinate])
-	# 					coord_index_left = coord_index[0][0]
-	# 					coord_index_top = coord_index[0][1]				
-	# 					bottom_player_array[checker_index].draw(window_surface, (coordinates_array[coord_index_left][coord_index_top]))
-	# 					checker_index += 1
-	# 				except IndexError:
-	# 					pass
-	# else:
-	# 	label = myfont.render("Game Over", 1, (255, 255, 0))
 		
 	for checker in bottom_player_array:
-		checker.draw2(window_surface)
+		checker.draw(window_surface)
 
 	for checker in top_player_array:
-		checker.draw2(window_surface)
+		checker.draw(window_surface)
 
 	if check_selected:
-		#for space in next_pos:
 		current_player_array[current_index].draw_on_cursor(window_surface, pygame.mouse.get_pos())
-		#bottom_player.draw_on_cursor(window_surface, pygame.mouse.get_pos())
 		for pos in next_pos:
-			if board.get_space_value(first_row_index, first_space_index) == 3: ##Para tomar en cuenta el turno
+			if board.get_space_value(first_row_index, first_space_index) == 3: 
 				bottom_player.draw_on_next_row(window_surface, (pos[0], pos[1]))
-				#bottom_player_array[bottom_index].draw(window_surface, pygame.mouse.get_pos())
-
 			else:
 				top_player.draw_on_next_row(window_surface,(pos[0],pos[1]))
+
 
 	if current_turn == [2, 4]:
 		top_player.draw_current_turn(window_surface)

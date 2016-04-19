@@ -4,23 +4,16 @@ class Checker():
 		self.sprite_rect = self.checker_sprite.get_rect()
 		self.checker_sprite_alpha = sprite_dict[player]["alpha_sprite"]
 
-	def draw(self, surface, position):
-		self.sprite_rect.left = (position[0] - 63 / 2) - 25
-		self.sprite_rect.top = (position[1] - 63 / 2) - 25
-		surface.blit(self.checker_sprite, self.sprite_rect)
-
 	def init_pos(self, position):
 		self.sprite_rect.left = (position[0] - 63 / 2) - 25
 		self.sprite_rect.top = (position[1] - 63 / 2) - 25
  	
-	def new_pos(self, position):
-		self.sprite_rect.left = (position[0] - 63 / 2) - 25
-		self.sprite_rect.top = (position[1] - 63 / 2) - 25
-
-	def draw2(self, surface):
-		#self.sprite_rect.left = (left - 63 / 2) - 25
-		#self.sprite_rect.top = (top - 63 / 2) - 25
+	def draw(self, surface):
 		surface.blit(self.checker_sprite, self.sprite_rect)
+
+
+	def draw_alpha(self, surface):
+		surface.blit(self.checker_sprite_alpha, self.sprite_rect)
 
 	def draw_on_next_row(self, surface, position):
 		pos_x = (position[0] - 63 / 2) - 25
