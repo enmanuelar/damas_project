@@ -166,14 +166,16 @@ while  True:
 					if release_pos not in next_coordinates:
 						for checker in current_enemy_array:
 							for pos in enemy_pos:
-								if checker.get_coordinates() == pos:
-									current_enemy_array.remove(checker)
-									enemy_coord_index = board.get_coord_index(coordinates_array, [pos])
-									board_array[enemy_coord_index[0][0]][enemy_coord_index[0][1]] = 1
-									current_player_array, current_enemy_array = board.change_player(current_turn, top_player_array, bottom_player_array)
-									current_turn = board.change_turn(current_turn)
-									break
-
+								try:
+									if checker.get_coordinates() == pos:
+										current_enemy_array.remove(checker)
+										enemy_coord_index = board.get_coord_index(coordinates_array, [pos])
+										board_array[enemy_coord_index[0][0]][enemy_coord_index[0][1]] = 1
+										current_player_array, current_enemy_array = board.change_player(current_turn, top_player_array, bottom_player_array)
+										current_turn = board.change_turn(current_turn)
+										break
+								except ValueError:
+									pass
 					else:
 						current_player_array, current_enemy_array = board.change_player(current_turn, top_player_array, bottom_player_array)
 						current_turn = board.change_turn(current_turn)
@@ -186,6 +188,11 @@ while  True:
 	window_surface.blit(background, (0,0))
 	board.draw(window_surface)
 	window_surface.blit(label, (540, 216))
+
+	if current_turn == [2, 4]:
+		top_player.draw_current_turn(window_surface)
+	else:
+		bottom_player.draw_current_turn(window_surface)
 
 	if len(bottom_player_array) > 0 or len(top_player_array) > 0:
 		for checker in bottom_player_array:
@@ -205,10 +212,6 @@ while  True:
 				top_player.draw_on_next_row(window_surface,(pos[0],pos[1]))
 
 
-	if current_turn == [2, 4]:
-		top_player.draw_current_turn(window_surface)
-	else:
-		bottom_player.draw_current_turn(window_surface)
 
 	if trigger_wrong_label:
 		label_time -= 1

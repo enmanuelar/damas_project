@@ -1,4 +1,5 @@
 import pygame 
+from pprint import pprint
 
 class Board():
 	def __init__(self, x, y, board_sprite, board_array):
@@ -26,9 +27,9 @@ class Board():
 		coord_x, coord_y = 0, 0
 		coordinates = []
 		row_coord = []
-		for y in range(8):
+		for y in range(9):
 			coord_y += self.board_height / 8
-			for x in range(8):
+			for x in range(9):
 				coord_x += self.board_width / 8
 				row_coord.append([coord_x, coord_y])
 			coordinates.append(row_coord)
@@ -110,29 +111,15 @@ class Board():
 		return next_pos_dict
 
 	def get_next_row_coordinates(self, coordinates_array, current_checker, row_index, space_index):	
-		if current_checker == 3:
-			try:
-				if space_index == 0:
-					return [coordinates_array[row_index - 1][space_index + 1]]
-				else:
-					next_pos = [coordinates_array[row_index - 1][space_index - 1], coordinates_array[row_index - 1][space_index + 1]]
- 					return next_pos
- 			except IndexError:
- 				next_pos = [coordinates_array[row_index - 1][space_index - 1]]
- 				return next_pos
- 		else:
- 			if current_checker == 2:
- 				try:
-					if space_index == 0:
-						return [coordinates_array[row_index + 1][space_index + 1]]
-					else:
-						next_pos = [coordinates_array[row_index + 1][space_index - 1], coordinates_array[row_index + 1][space_index + 1]]
-	 					return next_pos
-	 			except IndexError:
-	 				next_pos = [coordinates_array[row_index + 1][space_index - 1]]
-	 				return next_pos
-
-
+		if current_checker == 2:
+			default = [coordinates_array[row_index + 1][space_index - 1], coordinates_array[row_index + 1][space_index + 1]]
+			return {0: [coordinates_array[row_index + 1][space_index + 1]],
+					7: [coordinates_array[row_index + 1][space_index - 1]]}.get(space_index, default)
+		else:
+			if current_checker == 3:
+				return {0: [coordinates_array[row_index - 1][space_index + 1]],
+						7: [coordinates_array[row_index - 1][space_index - 1]]}.get(space_index, [coordinates_array[row_index - 1][space_index - 1], coordinates_array[row_index - 1][space_index + 1]])
+			
 	def move_checker(self, coordinates_array, mouse_pos, release_space_value, current_checker, first_row_index, first_space_index):
 		row_index, space_index = self.get_checker_index(coordinates_array, mouse_pos)
 		if release_space_value == 1:
