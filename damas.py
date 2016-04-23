@@ -141,7 +141,7 @@ while  True:
 					check_selected = True
 					next_coordinates = board.get_next_row_coordinates(coordinates_array, space_value, first_row_index, first_space_index)
 					print next_coordinates
-					positions = board.get_next_pos(coordinates_array, next_coordinates, space_value)
+					positions = board.get_next_pos(coordinates_array, next_coordinates, space_value, current_coordinate)
 					next_pos = positions["next_pos"]
 					enemy_pos = positions["enemy_pos"]
 			except NameError:
@@ -161,9 +161,10 @@ while  True:
 				if release_pos in next_pos and release_space_value == 1:
 					current_player_array[current_index].new_pos(release_pos)
 					board.move_checker(coordinates_array, pygame.mouse.get_pos(), release_space_value, space_value, first_row_index, first_space_index)
-					
 					## Revisar si hay fichas que se puedan comer
+					#next_pos_release = board.get_next_pos(coordinates_array, next_coordinates, space_value, release_pos)["next_pos"]
 					if release_pos not in next_coordinates:
+						#next_coordinates = board.get_next_row_coordinates(coordinates_array, space_value, second_row_index, second_space_index)
 						for checker in current_enemy_array:
 							for pos in enemy_pos:
 								try:
