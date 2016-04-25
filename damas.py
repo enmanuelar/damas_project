@@ -161,10 +161,13 @@ while  True:
 				if release_pos in next_pos and release_space_value == 1:
 					current_player_array[current_index].new_pos(release_pos)
 					board.move_checker(coordinates_array, pygame.mouse.get_pos(), release_space_value, space_value, first_row_index, first_space_index)
+					
 					## Revisar si hay fichas que se puedan comer
-					#next_pos_release = board.get_next_pos(coordinates_array, next_coordinates, space_value, release_pos)["next_pos"]
 					if release_pos not in next_coordinates:
-						#next_coordinates = board.get_next_row_coordinates(coordinates_array, space_value, second_row_index, second_space_index)
+						next_coordinates = board.get_next_row_coordinates(coordinates_array, space_value, second_row_index, second_space_index)
+						positions = board.get_next_pos(coordinates_array, next_coordinates, space_value, release_pos)
+						next_pos = positions["next_pos"]
+						next_enemy_pos = positions["enemy_pos"]
 						for checker in current_enemy_array:
 							for pos in enemy_pos:
 								try:
@@ -172,8 +175,9 @@ while  True:
 										current_enemy_array.remove(checker)
 										enemy_coord_index = board.get_coord_index(coordinates_array, [pos])
 										board_array[enemy_coord_index[0][0]][enemy_coord_index[0][1]] = 1
-										current_player_array, current_enemy_array = board.change_player(current_turn, top_player_array, bottom_player_array)
-										current_turn = board.change_turn(current_turn)
+										if (len(next_pos) == 0) or (len(next_pos) == 1 and next_pos[0][1] == next_enemy_pos[0][1]) or (len(next_pos) == 2 and next_enemy_pos == []):
+											current_player_array, current_enemy_array = board.change_player(current_turn, top_player_array, bottom_player_array)
+											current_turn = board.change_turn(current_turn)
 										break
 								except ValueError:
 									pass
