@@ -78,78 +78,54 @@ class Board():
 		space_values.append(self.get_space_value(row_space_index[0][0], row_space_index[0][1]))
 		return space_values
 	
-	def get_next_pos2(self, coordinates_array, coordinates_to_check, current_checker, current_coordinate):
+
+
+	def get_next_pos_dict(self, coordinates_array, coordinates_to_check, current_checker):
 		next_pos_dict = {}
 		next_pos = []
 		enemy_pos = []
-		if current_coordinate[0] == 63:
-			index_to_check = 1
-		else:
-			index_to_check = 0
-		for space in coordinates_to_check:
-			index = self.get_coord_index(coordinates_array, [space])
-			space_value = self.get_space_value(index[0][0], index[0][1])
-			if space_value != current_checker and space_value == 1 :
-				next_pos.append(space)
+		while True:
+			coord = coordinates_to_check.pop()
+			coord_index = self.get_coord_index(coordinates_array, [coord])
+			space_value = self.get_space_value(coord_index[0][0], coord_index[0][1])
+			if space_value == 1:
+				next_pos.append(coord)
 			else:
-				if space_value != current_checker and space_value != 1 and space[0] != 504:		
-					next_space_coord = self.get_next_row_coordinates(coordinates_array, current_checker, index[0][0], index[0][1])[index_to_check]
-					enemy_pos.append(space)
-					next_space_value = self.get_value_by_coordinates(coordinates_array, [next_space_coord])
-					print "no wiri " + str(next_space_coord)
-					if len(enemy_pos) == 1 and next_space_value == [1] and space[0] != 63:
-						next_pos = []
-						next_pos.append(next_space_coord)
-					else:
-						if next_space_value == [1] and space[0] != 63:
-							next_pos.append(next_space_coord)
-			index_to_check += 1
+				if current_checker == 4 and (space_value not in (current_checker, 1, 2)):
+					enemy_pos.append(coord)
+				else:
+					if space_value not in (current_checker, 1):
+						enemy_pos.append(coord)
+			if len(coordinates_to_check) == 0:
+				break
 		next_pos_dict["next_pos"] = next_pos
 		next_pos_dict["enemy_pos"] = enemy_pos
-		print next_pos_dict
 		return next_pos_dict
 
 	def get_next_pos(self, coordinates_array, coordinates_to_check, current_checker, current_coordinate):
-		next_pos_dict = {}
-		next_pos = []
-		enemy_pos = []
-		temp = []
-		if current_coordinate[0] == 63:
-			index_to_check = 1
-		else:
-			index_to_check = 0
-		for space in coordinates_to_check:
-			index = self.get_coord_index(coordinates_array, [space])
-			space_value = self.get_space_value(index[0][0], index[0][1])
-			print index_to_check	
-			if space_value != current_checker and space_value != 1 and space[0] != 504:	
-					print "la cprrd que tira " + str(self.get_next_row_coordinates(coordinates_array, current_checker, index[0][0], index[0][1]))
-					next_space_coord = self.get_next_row_coordinates(coordinates_array, current_checker, index[0][0], index[0][1])[index_to_check]
-					enemy_pos.append(space)
-					next_space_value = self.get_value_by_coordinates(coordinates_array, [next_space_coord])
-					print "no wiri " + str(next_space_coord)
-					temp.append(next_space_coord)
-					#if len(enemy_pos) == 1 and next_space_value == [1] and space[0] != 63:
-					#	next_pos = []
-					#	next_pos.append(next_space_coord)
-					#else:
-					if next_space_value == [1] and space[0] != 63:
-						next_pos.append(next_space_coord)
-			else:
-				if space_value != current_checker and space_value == 1:
-					next_pos.append(space)		
-			index_to_check += 1
-		print "next_pos " + str(next_pos), "temp " + str(temp)
-		if temp != []:
+		next_pos_dict = self.get_next_pos_dict(coordinates_array, coordinates_to_check, current_checker)
+		next_pos = next_pos_dict["next_pos"]
+		enemy_pos = next_pos_dict["enemy_pos"]
+		index_to_append = 0
+		found_new_pos = False
+		if len(enemy_pos) > 0:
+			for pos in enemy_pos:
+				pos_index = self.get_coord_index(coordinates_array, [pos])
+				next_space_coord = self.get_next_row_coordinates(coordinates_array, current_checker, pos_index[0][0], pos_index[0][1])
+				for next_coord in next_space_coord:
+					next_coord_index = self.get_coord_index(coordinates_array, [next_coord])
+					space_value = self.get_space_value(next_coord_index[0][0], next_coord_index[0][1])
+					if next_coord[0] != current_coordinate[0] and next_coord[1] != current_coordinate[1] and space_value == 1:
+						next_pos.append(next_coord)
+						found_new_pos = True
+				index_to_append += 1
+		if found_new_pos:
 			for pos in next_pos:
-				if pos not in temp:
+				if ((pos[0] - current_coordinate[0]) * -1) in (63, -63):
 					next_pos.remove(pos)
-
 		next_pos_dict["next_pos"] = next_pos
-		next_pos_dict["enemy_pos"] = enemy_pos
 		print next_pos_dict
 		return next_pos_dict
-
 
 	def get_next_row_coordinates(self, coordinates_array, current_checker, row_index, space_index):	
 		if current_checker == 2:

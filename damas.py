@@ -149,7 +149,7 @@ while  True:
 				if current_player_array[current_index].sprite_rect.collidepoint(event.pos) and space_value in current_turn:
 					check_selected = True
 					next_coordinates = board.get_next_row_coordinates(coordinates_array, space_value, first_row_index, first_space_index)
-					print next_coordinates
+					print "next_coordinates " + str(next_coordinates)
 					positions = board.get_next_pos(coordinates_array, next_coordinates, space_value, current_coordinate)
 					next_pos = positions["next_pos"]
 					enemy_pos = positions["enemy_pos"]
@@ -162,6 +162,7 @@ while  True:
 
 		if event.type == MOUSEBUTTONUP:
 			if pygame.mouse.get_pos()[0] < board.get_board_width():
+				next_coordinates = board.get_next_row_coordinates(coordinates_array, space_value, first_row_index, first_space_index)
 				second_row_index, second_space_index = board.get_checker_index(coordinates_array, pygame.mouse.get_pos())
 				release_space_value = board.get_space_value(second_row_index, second_space_index)
 				release_pos = board.get_space_coordinates(coordinates_array, second_row_index, second_space_index)
@@ -185,6 +186,8 @@ while  True:
 
 					## Revisar si hay fichas que se puedan comer
 					if release_pos not in next_coordinates and release_pos[1] not in (63, 504):
+						print "tamo qui"
+						print release_pos, next_coordinates
 						next_coordinates = board.get_next_row_coordinates(coordinates_array, space_value, second_row_index, second_space_index)
 						positions = board.get_next_pos(coordinates_array, next_coordinates, space_value, release_pos)
 						next_pos = positions["next_pos"]
