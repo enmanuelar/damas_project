@@ -52,7 +52,10 @@ class Board():
 					return row_index, space_index
 
 	def get_space_value(self, row_index, space_index):
-		return self.board_array[row_index][space_index]
+		try:
+			return self.board_array[row_index][space_index]
+		except IndexError:
+			pass
 
 	def get_space_coordinates(self, coordinates_array, row_index, space_index):
 		return coordinates_array[row_index][space_index]
@@ -74,8 +77,8 @@ class Board():
 		row_space_index = self.get_coord_index(coordinates_array, coordinates_to_check)
 		space_values.append(self.get_space_value(row_space_index[0][0], row_space_index[0][1]))
 		return space_values
-
-	def get_next_pos(self, coordinates_array, coordinates_to_check, current_checker, current_coordinate):
+	
+	def get_next_pos2(self, coordinates_array, coordinates_to_check, current_checker, current_coordinate):
 		next_pos_dict = {}
 		next_pos = []
 		enemy_pos = []
@@ -86,13 +89,14 @@ class Board():
 		for space in coordinates_to_check:
 			index = self.get_coord_index(coordinates_array, [space])
 			space_value = self.get_space_value(index[0][0], index[0][1])
-			if space_value != current_checker and space_value == 1 and len(enemy_pos) == 0:
+			if space_value != current_checker and space_value == 1 :
 				next_pos.append(space)
 			else:
 				if space_value != current_checker and space_value != 1 and space[0] != 504:		
 					next_space_coord = self.get_next_row_coordinates(coordinates_array, current_checker, index[0][0], index[0][1])[index_to_check]
 					enemy_pos.append(space)
 					next_space_value = self.get_value_by_coordinates(coordinates_array, [next_space_coord])
+					print "no wiri " + str(next_space_coord)
 					if len(enemy_pos) == 1 and next_space_value == [1] and space[0] != 63:
 						next_pos = []
 						next_pos.append(next_space_coord)
@@ -102,6 +106,48 @@ class Board():
 			index_to_check += 1
 		next_pos_dict["next_pos"] = next_pos
 		next_pos_dict["enemy_pos"] = enemy_pos
+		print next_pos_dict
+		return next_pos_dict
+
+	def get_next_pos(self, coordinates_array, coordinates_to_check, current_checker, current_coordinate):
+		next_pos_dict = {}
+		next_pos = []
+		enemy_pos = []
+		temp = []
+		if current_coordinate[0] == 63:
+			index_to_check = 1
+		else:
+			index_to_check = 0
+		for space in coordinates_to_check:
+			index = self.get_coord_index(coordinates_array, [space])
+			space_value = self.get_space_value(index[0][0], index[0][1])
+			print index_to_check	
+			if space_value != current_checker and space_value != 1 and space[0] != 504:	
+					print "la cprrd que tira " + str(self.get_next_row_coordinates(coordinates_array, current_checker, index[0][0], index[0][1]))
+					next_space_coord = self.get_next_row_coordinates(coordinates_array, current_checker, index[0][0], index[0][1])[index_to_check]
+					enemy_pos.append(space)
+					next_space_value = self.get_value_by_coordinates(coordinates_array, [next_space_coord])
+					print "no wiri " + str(next_space_coord)
+					temp.append(next_space_coord)
+					#if len(enemy_pos) == 1 and next_space_value == [1] and space[0] != 63:
+					#	next_pos = []
+					#	next_pos.append(next_space_coord)
+					#else:
+					if next_space_value == [1] and space[0] != 63:
+						next_pos.append(next_space_coord)
+			else:
+				if space_value != current_checker and space_value == 1:
+					next_pos.append(space)		
+			index_to_check += 1
+		print "next_pos " + str(next_pos), "temp " + str(temp)
+		if temp != []:
+			for pos in next_pos:
+				if pos not in temp:
+					next_pos.remove(pos)
+
+		next_pos_dict["next_pos"] = next_pos
+		next_pos_dict["enemy_pos"] = enemy_pos
+		print next_pos_dict
 		return next_pos_dict
 
 
@@ -113,9 +159,25 @@ class Board():
 		else:
 			if current_checker == 3:
 				default = [coordinates_array[row_index - 1][space_index - 1], coordinates_array[row_index - 1][space_index + 1]]
+				#default = [coordinates_array[row_index + 1][space_index - 1], coordinates_array[row_index + 1][space_index + 1],				
 				return {0: [coordinates_array[row_index - 1][space_index + 1]],
 						7: [coordinates_array[row_index - 1][space_index - 1]]}.get(space_index, default)
-			
+			else:
+				if current_checker == 4 or current_checker == 5:
+					return self.get_next_row_king(coordinates_array, row_index, space_index)
+					
+	
+	def get_next_row_king(self, coordinates_array, row_index, space_index):
+		if row_index == 0:
+			default = [coordinates_array[row_index + 1][space_index - 1], coordinates_array[row_index + 1][space_index + 1]]
+		else:
+			if row_index == 7:
+				default = [coordinates_array[row_index - 1][space_index - 1], coordinates_array[row_index - 1][space_index + 1]]
+			else:
+				default = [coordinates_array[row_index + 1][space_index - 1], coordinates_array[row_index + 1][space_index + 1], coordinates_array[row_index - 1][space_index - 1], coordinates_array[row_index - 1][space_index + 1]]
+		return {0: [coordinates_array[row_index - 1][space_index + 1], coordinates_array[row_index + 1][space_index + 1]],
+				7: [coordinates_array[row_index - 1][space_index - 1], coordinates_array[row_index + 1][space_index - 1]]}.get(space_index, default)
+
 	def move_checker(self, coordinates_array, mouse_pos, release_space_value, current_checker, first_row_index, first_space_index):
 		row_index, space_index = self.get_checker_index(coordinates_array, mouse_pos)
 		if release_space_value == 1:
@@ -126,6 +188,14 @@ class Board():
 				if current_checker == 2:
 					self.board_array[first_row_index][first_space_index] = 1
 					self.board_array[row_index][space_index] = 2
+				else:
+					if current_checker == 4:
+						self.board_array[first_row_index][first_space_index] = 1
+						self.board_array[row_index][space_index] = 4
+					else:
+						if current_checker == 5:
+							self.board_array[first_row_index][first_space_index] = 1
+							self.board_array[row_index][space_index] = 5					
 
 
 	def init_turn(self, first_player):

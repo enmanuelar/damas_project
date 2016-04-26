@@ -21,21 +21,29 @@ wrong_label_pos_x, wrong_label_pos_y = 152, 252
 board_sprite = pygame.image.load("images/checkers_board_8x8.gif")
 red_checkers = pygame.image.load("images/ficha_roja_50x50.png")
 blue_checkers = pygame.image.load("images/ficha_azul_50x50.png")
+red_king = pygame.image.load("images/ficha_roja_king_50x50.png")
+blue_king = pygame.image.load("images/ficha_azul_king_50x50.png")
 red_checkers_alpha = pygame.image.load("images/ficha_roja_50x50.png")
 blue_checkers_alpha = pygame.image.load("images/ficha_azul_50x50.png")
+red_king_alpha = pygame.image.load("images/ficha_roja_king_alpha_50x50.png")
+blue_king_alpha = pygame.image.load("images/ficha_azul_king_alpha_50x50.png")
 background = pygame.image.load("images/background01.jpg")
 
 red_checkers.set_colorkey((255,255,255),RLEACCEL)
 red_checkers_alpha.set_colorkey((255,255,255),RLEACCEL)
+red_king.set_colorkey()
+red_king_alpha.set_colorkey()
 blue_checkers.set_colorkey((255,255,255),RLEACCEL)
 blue_checkers_alpha.set_colorkey((255,255,255),RLEACCEL)
+blue_king.set_colorkey()
+blue_king_alpha.set_colorkey()
 red_checkers_alpha.set_alpha(80)
 blue_checkers_alpha.set_alpha(80)
 background.set_colorkey()
 
 sprites_dict = {
-	"top_player": {"sprite": red_checkers, "alpha_sprite": red_checkers_alpha},
-	"bottom_player": {"sprite": blue_checkers, "alpha_sprite": blue_checkers_alpha}
+	"top_player": {"sprite": red_checkers, "king": red_king, "alpha_sprite": red_checkers_alpha, "king_alpha": red_king_alpha},
+	"bottom_player": {"sprite": blue_checkers, "king": blue_king, "alpha_sprite": blue_checkers_alpha, "king_alpha": blue_king_alpha}
 }
 
 ##Font and Text
@@ -64,7 +72,7 @@ for unused in range(0, 3):
 board = board.Board(0, 0, board_sprite, board_array)
 
 #top_player = checker.Checker(sprites_dict, "top_player")
-bottom_player = checker.Checker(sprites_dict, "bottom_player")
+#bottom_player = checker.Checker(sprites_dict, "bottom_player")
 
 ## Inicializar tablero para el jugador del top
 board.initialize(0, 2)
@@ -94,11 +102,11 @@ for row in board_array:
 		for space in row:
 			if space == 2 or space == 4:
 					top_player_array[top_checker_index].new_pos(coordinates_array[current_row][current_space])
-					top_checker_index+= 1
+					top_checker_index += 1
 			if space == 3 or space == 5:
 				bottom_player_array[bot_checker_index].new_pos(coordinates_array[current_row][current_space])
 
-				bot_checker_index+= 1
+				bot_checker_index += 1
 			current_space += 1
 		current_row += 1 
 
@@ -127,6 +135,7 @@ while  True:
 			for checker in current_player_array:
 				if checker.get_coordinates() == current_coordinate:
 					current_index = current_player_array.index(checker)
+					#checker.checker_sprite = sprites_dict["bottom_player"]["king"]
 
 			for checker in current_enemy_array:
 				if checker.sprite_rect.collidepoint(event.pos):
@@ -156,14 +165,26 @@ while  True:
 				second_row_index, second_space_index = board.get_checker_index(coordinates_array, pygame.mouse.get_pos())
 				release_space_value = board.get_space_value(second_row_index, second_space_index)
 				release_pos = board.get_space_coordinates(coordinates_array, second_row_index, second_space_index)
-				print release_pos
-
+				print "release " + str(release_pos)
+				#print board_array
 				if release_pos in next_pos and release_space_value == 1:
 					current_player_array[current_index].new_pos(release_pos)
 					board.move_checker(coordinates_array, pygame.mouse.get_pos(), release_space_value, space_value, first_row_index, first_space_index)
 					
+					## Coronar ficha
+					if release_pos[1] == 504 and current_turn == [2, 4]:
+						current_player_array[current_index].checker_sprite = sprites_dict["top_player"]["king"]
+						current_player_array[current_index].checker_sprite_alpha = sprites_dict["top_player"]["king_alpha"]
+						board_array[second_row_index][second_space_index] = 4
+					else:
+						if release_pos[1] == 63 and current_turn == [3, 5]:
+							current_player_array[current_index].checker_sprite = sprites_dict["bottom_player"]["king"]
+							current_player_array[current_index].checker_sprite_alpha = sprites_dict["bottom_player"]["king_alpha"]
+							board_array[second_row_index][second_space_index] = 5
+
+
 					## Revisar si hay fichas que se puedan comer
-					if release_pos not in next_coordinates:
+					if release_pos not in next_coordinates and release_pos[1] not in (63, 504):
 						next_coordinates = board.get_next_row_coordinates(coordinates_array, space_value, second_row_index, second_space_index)
 						positions = board.get_next_pos(coordinates_array, next_coordinates, space_value, release_pos)
 						next_pos = positions["next_pos"]
@@ -175,7 +196,7 @@ while  True:
 										current_enemy_array.remove(checker)
 										enemy_coord_index = board.get_coord_index(coordinates_array, [pos])
 										board_array[enemy_coord_index[0][0]][enemy_coord_index[0][1]] = 1
-										if (len(next_pos) == 0) or (len(next_pos) == 1 and next_pos[0][1] == next_enemy_pos[0][1]) or (len(next_pos) == 2 and next_enemy_pos == []):
+										if (len(next_pos) == 0) or (len(next_pos) == 1 and next_enemy_pos == []) or (len(next_pos) == 1 and next_pos[0][1] == next_enemy_pos[0][1]) or (len(next_pos) == 2 and next_enemy_pos == []):
 											current_player_array, current_enemy_array = board.change_player(current_turn, top_player_array, bottom_player_array)
 											current_turn = board.change_turn(current_turn)
 										break
@@ -211,10 +232,11 @@ while  True:
 	if check_selected:
 		current_player_array[current_index].draw_on_cursor(window_surface, pygame.mouse.get_pos())
 		for pos in next_pos:
-			if board.get_space_value(first_row_index, first_space_index) == 3: 
-				bottom_player.draw_on_next_row(window_surface, (pos[0], pos[1]))
-			else:
-				top_player.draw_on_next_row(window_surface,(pos[0],pos[1]))
+			#if board.get_space_value(first_row_index, first_space_index) == 3: 
+			current_player_array[current_index].draw_on_next_row(window_surface, (pos[0], pos[1]))
+				#bottom_player.draw_on_next_row(window_surface, (pos[0], pos[1]))
+			#else:
+			#	top_player.draw_on_next_row(window_surface,(pos[0],pos[1]))
 
 
 

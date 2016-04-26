@@ -1,7 +1,7 @@
 class Checker():
 	def __init__(self, sprite_dict, player):
 		self.checker_sprite = sprite_dict[player]["sprite"]
-		self.sprite_rect = self.checker_sprite.get_rect()
+		self.sprite_rect = self.checker_sprite.get_rect()	
 		self.checker_sprite_alpha = sprite_dict[player]["alpha_sprite"]
 
 	def new_pos(self, position):
