@@ -84,6 +84,10 @@ class Board():
 		next_pos_dict = {}
 		next_pos = []
 		enemy_pos = []
+		values = {2: (3, 5),
+				3: (2, 4),
+				4: (3, 5),
+				5: (2, 4)}
 		while True:
 			coord = coordinates_to_check.pop()
 			coord_index = self.get_coord_index(coordinates_array, [coord])
@@ -91,11 +95,8 @@ class Board():
 			if space_value == 1:
 				next_pos.append(coord)
 			else:
-				if current_checker == 4 and (space_value not in (current_checker, 1, 2)):
+				if space_value in values[current_checker]:
 					enemy_pos.append(coord)
-				else:
-					if space_value not in (current_checker, 1):
-						enemy_pos.append(coord)
 			if len(coordinates_to_check) == 0:
 				break
 		next_pos_dict["next_pos"] = next_pos
@@ -121,7 +122,8 @@ class Board():
 				index_to_append += 1
 		if found_new_pos:
 			for pos in next_pos:
-				if ((pos[0] - current_coordinate[0]) * -1) in (63, -63):
+				#print "yahh " + str(pos)
+				if (pos[0] - current_coordinate[0]) in (63, -63):
 					next_pos.remove(pos)
 		next_pos_dict["next_pos"] = next_pos
 		print next_pos_dict
@@ -178,6 +180,13 @@ class Board():
 		turn = {"top": [2, 4], "bottom": [3, 5]}
 		return turn[first_player]
 
+	def check_for_turn_change(self, next_pos, release_pos):
+		state = True
+		for pos in next_pos:
+			#print "pos ", pos[1], (pos[1] - release_pos[1]) 
+			if (pos[1] - release_pos[1]) in (-126, 126):
+				state = False
+		return state
 
 	def change_turn(self, current_turn):
 		turn = {"top": [2, 4], "bottom": [3, 5]}
@@ -195,4 +204,17 @@ class Board():
 			if current_turn == [2, 4]:
 				return bottom_player_array, top_player_array
 
-
+	def eat(self, coordinates_array, release_pos, next_coordinates, enemy_pos, current_enemy_array):
+		for checker in current_enemy_array:
+			checker_coord = checker.get_coordinates()
+			if checker_coord in enemy_pos:
+				for pos in enemy_pos:
+					row_diff = release_pos[0] - checker_coord[0]
+					space_diff = release_pos[1] - checker_coord[1]
+					if row_diff in (-63, 63) and space_diff in (-63, 63):
+						current_enemy_array.remove(checker)
+						enemy_coord_index = self.get_coord_index(coordinates_array, [checker_coord])
+						#enemy_coord_index = self.get_coord_index(coordinates_array, [pos])
+						#print  self.board_array[enemy_coord_index[0][0]][enemy_coord_index[0][1]]
+						self.board_array[enemy_coord_index[0][0]][enemy_coord_index[0][1]] = 1
+						break
