@@ -131,11 +131,9 @@ while  True:
 			space_value = board.get_space_value(first_row_index, first_space_index)
 			next_pos = [(0,0)]
 			current_coordinate = board.get_space_coordinates(coordinates_array, first_row_index, first_space_index)
-			#print "DOWN ", first_row_index, first_space_index, space_value, current_coordinate 
 			for checker in current_player_array:
 				if checker.get_coordinates() == current_coordinate:
 					current_index = current_player_array.index(checker)
-					#checker.checker_sprite = sprites_dict["bottom_player"]["king"]
 
 			for checker in current_enemy_array:
 				if checker.sprite_rect.collidepoint(event.pos):
@@ -185,13 +183,11 @@ while  True:
 
 					## Revisar si hay fichas que se puedan comer
 					if release_pos not in next_coordinates and release_pos[1] not in (63, 504):
+						board.eat(coordinates_array, release_pos, next_coordinates, enemy_pos, current_enemy_array)
 						next_coordinates = board.get_next_row_coordinates(coordinates_array, space_value, second_row_index, second_space_index)
 						positions = board.get_next_pos(coordinates_array, next_coordinates, space_value, release_pos)
 						next_pos = positions["next_pos"]
 						next_enemy_pos = positions["enemy_pos"]
-						board.eat(coordinates_array, release_pos, next_coordinates, enemy_pos, current_enemy_array)
-						#if (len(next_pos) == 0) or (len(next_pos) >= 1 and next_enemy_pos == []) or (len(next_pos) == 1 and next_pos[0][1] == next_enemy_pos[0][1]):
-						#print "UP ", second_row_index, second_space_index, space_value, release_pos
 						
 						if board.check_for_turn_change(next_pos, release_pos):
 							current_player_array, current_enemy_array = board.change_player(current_turn, top_player_array, bottom_player_array)
@@ -205,7 +201,7 @@ while  True:
 						else:
 							current_player_array, current_enemy_array = board.change_player(current_turn, top_player_array, bottom_player_array)
 							current_turn = board.change_turn(current_turn)
-				#print board_array
+				print "player length ", len(current_enemy_array)
 
 				check_selected = False
 			else:
@@ -222,7 +218,7 @@ while  True:
 	else:
 		bottom_player.draw_current_turn(window_surface)
 
-	if len(bottom_player_array) > 0 or len(top_player_array) > 0:
+	if len(current_player_array) > 0:
 		for checker in bottom_player_array:
 			checker.draw(window_surface)
 

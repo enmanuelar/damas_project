@@ -117,12 +117,12 @@ class Board():
 					next_coord_index = self.get_coord_index(coordinates_array, [next_coord])
 					space_value = self.get_space_value(next_coord_index[0][0], next_coord_index[0][1])
 					if next_coord[0] != current_coordinate[0] and next_coord[1] != current_coordinate[1] and space_value == 1:
+						print "yandel"
 						next_pos.append(next_coord)
 						found_new_pos = True
 				index_to_append += 1
 		if found_new_pos:
 			for pos in next_pos:
-				#print "yahh " + str(pos)
 				if (pos[0] - current_coordinate[0]) in (63, -63):
 					next_pos.remove(pos)
 		next_pos_dict["next_pos"] = next_pos
@@ -136,8 +136,7 @@ class Board():
 					7: [coordinates_array[row_index + 1][space_index - 1]]}.get(space_index, default)
 		else:
 			if current_checker == 3:
-				default = [coordinates_array[row_index - 1][space_index - 1], coordinates_array[row_index - 1][space_index + 1]]
-				#default = [coordinates_array[row_index + 1][space_index - 1], coordinates_array[row_index + 1][space_index + 1],				
+				default = [coordinates_array[row_index - 1][space_index - 1], coordinates_array[row_index - 1][space_index + 1]]				
 				return {0: [coordinates_array[row_index - 1][space_index + 1]],
 						7: [coordinates_array[row_index - 1][space_index - 1]]}.get(space_index, default)
 			else:
@@ -214,7 +213,5 @@ class Board():
 					if row_diff in (-63, 63) and space_diff in (-63, 63):
 						current_enemy_array.remove(checker)
 						enemy_coord_index = self.get_coord_index(coordinates_array, [checker_coord])
-						#enemy_coord_index = self.get_coord_index(coordinates_array, [pos])
-						#print  self.board_array[enemy_coord_index[0][0]][enemy_coord_index[0][1]]
 						self.board_array[enemy_coord_index[0][0]][enemy_coord_index[0][1]] = 1
 						break
