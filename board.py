@@ -117,7 +117,6 @@ class Board():
 					next_coord_index = self.get_coord_index(coordinates_array, [next_coord])
 					space_value = self.get_space_value(next_coord_index[0][0], next_coord_index[0][1])
 					if next_coord[0] != current_coordinate[0] and next_coord[1] != current_coordinate[1] and space_value == 1:
-						print "yandel"
 						next_pos.append(next_coord)
 						found_new_pos = True
 				index_to_append += 1
