@@ -157,22 +157,11 @@ class Board():
 	def move_checker(self, coordinates_array, mouse_pos, release_space_value, current_checker, first_row_index, first_space_index):
 		row_index, space_index = self.get_checker_index(coordinates_array, mouse_pos)
 		if release_space_value == 1:
-			if current_checker == 3:
-				self.board_array[first_row_index][first_space_index] = 1
-				self.board_array[row_index][space_index] = 3
-			else:
-				if current_checker == 2:
-					self.board_array[first_row_index][first_space_index] = 1
-					self.board_array[row_index][space_index] = 2
-				else:
-					if current_checker == 4:
-						self.board_array[first_row_index][first_space_index] = 1
-						self.board_array[row_index][space_index] = 4
-					else:
-						if current_checker == 5:
-							self.board_array[first_row_index][first_space_index] = 1
-							self.board_array[row_index][space_index] = 5					
-
+			self.board_array[first_row_index][first_space_index] = 1
+			self.board_array[row_index][space_index] = {2: 2,
+														3: 3,
+														4: 4,
+														5: 5}.get(current_checker)
 
 	def init_turn(self, first_player):
 		turn = {"top": [2, 4], "bottom": [3, 5]}
