@@ -101,6 +101,7 @@ class Board():
 				break
 		next_pos_dict["next_pos"] = next_pos
 		next_pos_dict["enemy_pos"] = enemy_pos
+		print next_pos
 		return next_pos_dict
 
 	def get_next_pos(self, coordinates_array, coordinates_to_check, current_checker, current_coordinate):
@@ -158,10 +159,7 @@ class Board():
 		row_index, space_index = self.get_checker_index(coordinates_array, mouse_pos)
 		if release_space_value == 1:
 			self.board_array[first_row_index][first_space_index] = 1
-			self.board_array[row_index][space_index] = {2: 2,
-														3: 3,
-														4: 4,
-														5: 5}.get(current_checker)
+			self.board_array[row_index][space_index] = {2: 2, 3: 3, 4: 4, 5: 5}.get(current_checker)
 
 	def init_turn(self, first_player):
 		turn = {"top": [2, 4], "bottom": [3, 5]}
