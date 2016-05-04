@@ -16,6 +16,7 @@ bottom_player_array = []
 trigger_wrong_label = False
 wrong_label_pos_x, wrong_label_pos_y = 152, 252
 game_over = False
+draw_exit_button = False
 
 ##Sprites
 board_sprite = pygame.image.load("images/checkers_board_8x8.gif")
@@ -28,6 +29,12 @@ blue_checkers_alpha = pygame.image.load("images/ficha_azul_50x50.png")
 red_king_alpha = pygame.image.load("images/ficha_roja_king_alpha_50x50.png")
 blue_king_alpha = pygame.image.load("images/ficha_azul_king_alpha_50x50.png")
 background = pygame.image.load("images/background01.jpg")
+exit_button = pygame.image.load("images/exit_button.png")
+game_over_board = pygame.image.load("images/gameover_board.png")
+
+exit_button_rect = exit_button.get_rect()
+exit_button_rect.left, exit_button_rect.top = 220, 250
+exit_button_scale = pygame.transform.scale(exit_button, (70, 70))
 
 red_checkers.set_colorkey((255,255,255),RLEACCEL)
 red_checkers_alpha.set_colorkey((255,255,255),RLEACCEL)
@@ -50,8 +57,8 @@ sprites_dict = {
 myfont = pygame.font.Font(None, 36)
 label = myfont.render("Player Turn:", 1, (255, 255, 0))
 wrong_label = myfont.render("Not your turn yet!", 1, (255, 125, 50))
-blue_win_label = myfont.render("Blue player wins!", 1, (0, 0, 255))
-red_win_label = myfont.render("Red player wins!", 1, (255, 0, 0))
+blue_win_label = myfont.render("Blue player wins!", 1, (0, 0, 200))
+red_win_label = myfont.render("Red player wins!", 1, (200, 0, 0))
 
 ##How fast the screen updates
 main_clock = pygame.time.Clock()
@@ -115,6 +122,18 @@ for row in board_array:
 current_player_array = bottom_player_array
 current_enemy_array = top_player_array
 
+def get_exit_button():
+	try:
+		if exit_button_rect.collidepoint(event.pos):
+			window_surface.blit(exit_button_scale, (exit_button_rect.left - 10, exit_button_rect.top - 10))
+			if event.type == MOUSEBUTTONDOWN:
+				pygame.quit()
+				sys.exit()
+		else:
+			window_surface.blit(exit_button, (exit_button_rect.left, exit_button_rect.top))
+	except AttributeError:
+		window_surface.blit(exit_button, (exit_button_rect.left, exit_button_rect.top))
+
 print board_array
 print coordinates_array
 
@@ -156,6 +175,8 @@ while  True:
 						enemy_pos = positions["enemy_pos"]
 				except IndexError:
 					print "Game Over"
+
+
 			except NameError:
 				wrong_label_pos_x, wrong_label_pos_y = pygame.mouse.get_pos()[0] - 100, pygame.mouse.get_pos()[1]
 				wrong_label = myfont.render("Pick a blue checker", 1, (255, 125, 50))
@@ -232,11 +253,13 @@ while  True:
 	else:
 		label = myfont.render("Game Over!", 1, (255, 255, 0))
 		game_over = True
+		draw_exit_button = True
+		window_surface.blit(game_over_board, (0, 0))
 
 	if game_over and current_turn == [2, 4]:
-		window_surface.blit(blue_win_label,(500, 250))
+		window_surface.blit(blue_win_label,(150, 215))
 	elif game_over:
-		window_surface.blit(red_win_label,(500, 250))
+		window_surface.blit(red_win_label,(150, 215))
 
 
 	if check_selected:
@@ -250,6 +273,10 @@ while  True:
 		wrong_label_pos_y -= 1
 		if label_time == 0:
 			trigger_wrong_label = False
+
+	
+	if draw_exit_button:
+		get_exit_button()
 
 	pygame.display.update()
 	main_clock.tick(30)
